@@ -1,8 +1,5 @@
-const functions = require('firebase-functions');
 const fba = require('firebase-admin');
-// fba.initializeApp(functions.config().firebase);
 fba.initializeApp({
-//  functions.config().firebase,
   credential: fba.credential.applicationDefault()
 });
 
