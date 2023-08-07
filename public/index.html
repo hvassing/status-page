@@ -145,7 +145,7 @@ async function getJson(url, callback) {
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
-getJson( `https://europe-west3-keen-electron-277310.cloudfunctions.net/get-status-info?uid=${val.identifier}`, function(statusJson) {
+getJson( `https://europe-west3-keen-electron-277310.cloudfunctions.net/get-status-info?uid=something`, function(statusJson) {
   document.getElementById('buildings').innerHTML = statusJson.buildings;
 });
 
