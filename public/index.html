@@ -6,6 +6,7 @@
     <title>Status page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 <style>
     @font-face {
         font-family: "CoopGroteskBold";
@@ -57,80 +58,77 @@
 </head>
 <body>
 
-
-<div id="outer">
-	<h1>Status page</h1>
-	<div id="service-container">
-	</div>
-	<p>Last updated: now();</p>
-
-</div>
+	<div class="container mt-5">
+  
+		<h2>Status Page</h2>		
+		
+		<div class="row">
+		
+		  <div class="col-md-3">
+		  
+		<div class="card text-white bg-success mb-3" style="max-width: 18rem;">
+		<div class="card-header">Antall butikker</div>
+		<div class="card-body">
+		  <h5 class="card-title" id="buildings">Active</h5>
+		  <p class="card-text">Viser antall butikker i databasen.</p>
+		</div>
+	  </div>
+		  </div>
+		  <div class="col-md-3">
+		  
+		<div class="card text-white bg-success mb-3" style="max-width: 18rem;">
+		<div class="card-header">Mail Servers</div>
+		<div class="card-body">
+		  <h5 class="card-title">Active</h5>
+		  <p class="card-text">Mail servers are active and usable.</p>
+		</div>
+	  </div>
+		  </div>
+		  <div class="col-md-3">
+		  
+		<div class="card text-white bg-warning mb-3" style="max-width: 18rem;">
+		<div class="card-header">FTP Servers</div>
+		<div class="card-body">
+		  <h5 class="card-title">Busy</h5>
+		  <p class="card-text">FTP servers are busy. It may cause a delay on commits.</p>
+		</div>
+	  </div>
+		  </div>
+		  
+		   <div class="col-md-3">
+		  
+		<div class="card text-white bg-danger mb-3" style="max-width: 18rem;">
+		<div class="card-header">Client Servers</div>
+		<div class="card-body">
+		  <h5 class="card-title">Inactive</h5>
+		  <p class="card-text">There is a maintanance on Client Servers.</p>
+		</div>
+	  </div>
+		  </div>
+		  
+		</div>
+		
+		<br>
+		
+		<div class="row text-center border-top">
+		
+		  <div class="col-md-12">
+		  
+			<p>This is a footer &copy; alpbzdg</p>
+			
+			
+		  </div> 
+			
+		</div>
+		
+	  </div>
 
 
 <script>
-let servicesList = JSON.parse('{"services":[{"name":"Number of stores","description":"Internal validation service. ","identifier":"storeCount"},{"name":"Energy API","description":"Status of energy API","identifier":"energyAPI"}]}');
-
-
-async function getJson(url, callback) {
-	
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            console.log('responseText:' + xmlhttp.responseText);
-            try {
-                var data = JSON.parse(xmlhttp.responseText);
-            } catch(err) {
-                console.log(err.message + " in " + xmlhttp.responseText);
-                return;
-            }
-            callback(data);
-        }
-    };
- 
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-}
-
-
-Object.values(servicesList.services).forEach(val => {
-	console.log(val)
-	newElem = document.createElement("div");
-	newElem.className = "service-box";
-	newElem.innerHTML = `<h2>${val.name}</h2><div id="${val.identifier}" style="display: flex; flex-direction: row;"></div><div><p>Last 30 days</p></div>`;
-
-	document.getElementById('service-container').appendChild(newElem);
-
-	getJson( `https://europe-west2-keen-electron-277310.cloudfunctions.net/get-status-info?uid=${val.identifier}`, function(statusJson) {
-		Object.keys(statusJson.last30days).forEach(key => {
-			secondElem = document.createElement("div");
-			secondElem.className = "statusIndicator " + statusJson.last30days[key].status;
-			document.getElementById( statusJson.identifier.toString() ).appendChild(secondElem);
-			console.log( document.getElementById(statusJson.identifier).innerHTML );
-		})
-	});
-})
-
-let statusJson = JSON.parse( '{"status":"green","name":"demoValidationService","last30days":{"2021-06-22":{"status":"green","message":"All is good"},"2021-06-21":{"status":"green","message":"Minor hickups"}},"timestamp":"2021-06-22T19:15:41.274Z"}')
-let authCodeLoginDiv = document.getElementById('demoValidationService');
-
-function populateStatuses( list ) {
-	const ordered = Object.keys(list).sort().reduce(
-	  (obj, key) => { 
-	    obj[key] = list[key]; 
-	    return obj;
-	  }, 
-	  {}
-	);
-
-	Object.keys(list).forEach(key => {
-		newElem = document.createElement("div");
-		newElem.className = "statusIndicator " + ordered[key].status;
-		newElem.title = key;
-		authCodeLoginDiv.appendChild(newElem);
-	})	
-}
-
-
+let servicesList = JSON.parse('{"services":[{"name":"Number of stores", "identifier": "buildings"}]');
+getJson( `https://europe-west2-keen-electron-277310.cloudfunctions.net/get-status-info?uid=${val.identifier}`, function(statusJson) {
+  document.getElementById('buildings').innerHTML = statusJson.buildings;
+});
 
 
 </script>
