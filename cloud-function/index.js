@@ -16,7 +16,7 @@ exports.getStatusInfo = (req, res) => {
     res.set('Access-Control-Allow-Origin', 'https://storage.googleapis.com');
     
     if ( req.query.uid ) {
-      var uid = req.query.uid;        
+      var uid = req.query.uid;
       
       var rollRef = fba.firestore().collection('eos_status').doc( 'latest' );
       var getDoc = rollRef.get()
