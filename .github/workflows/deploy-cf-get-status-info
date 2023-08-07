@@ -1,0 +1,36 @@
+name: Deploy cloud function get-status-info
+
+on:
+  # Triggers the workflow on push events but only for the main branch
+  push:
+    branches: [main]
+    paths: cloud-function
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with: 
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+    - id: 'deploy-cloud-function'
+      uses: 'google-github-actions/deploy-cloud-functions@v1'
+      with:
+        name: 'get-status-info'
+        runtime: 'nodejs18'
+        entry_point: 'getStatusInfo'
+        region: 'europe-west3'
+        max_instances: 1
+        source_dir: cloud-function/
+        labels: 'deployment-tool=github-action,group=retail'

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Status page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<style>
+    @font-face {
+        font-family: "CoopGroteskBold";
+        src: url("https://handleliste.coop.no/fonts/WOFF2/CoopGroteskBold.woff2") format("woff"),
+        url("https://handleliste.coop.no/fonts/WOFF/CoopGroteskBold.woff");
+    }
+    @font-face {
+        font-family: "CoopGroteskRegular";
+        src: url("https://handleliste.coop.no/fonts/WOFF2/CoopGroteskRegular.woff2") format("woff"),
+        url("https://handleliste.coop.no/fonts/WOFF/CoopGroteskRegular.woff");
+    }
+
+    body, html {
+        height: 100%;
+        background-color: #e8e8e8;
+        margin: 2em;
+    }
+    p {
+    	font-family: CoopGroteskRegular;
+        font-size: 17px;
+        line-height: 20px;
+    }
+    h1, h2 {
+    	font-family: CoopGroteskBold;
+    }
+	#outer {
+		background-color: #fff;
+		border-radius: 10px;
+		text-align: center;
+		margin:  1em;
+		padding:  1em;
+	}
+	.service-box {
+		text-align: left;
+	}
+	.statusIndicator {
+		height: 40px;
+		width: 6px;
+		border-radius: 5px;
+		margin: 5px;
+	}
+	.green {
+		background: rgb(96, 191, 106);
+	}
+	.red {
+		background: rgb(203, 76, 72);
+	}
+</style>
+</head>
+<body>
+
+
+<div id="outer">
+	<h1>Status page</h1>
+	<div id="service-container">
+	</div>
+	<p>Last updated: now();</p>
+
+</div>
+
+
+<script>
+let servicesList = JSON.parse('{"services":[{"name":"Number of stores","description":"Internal validation service. ","identifier":"storeCount"},{"name":"Energy API","description":"Status of energy API","identifier":"energyAPI"}]}');
+
+
+async function getJson(url, callback) {
+	
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            console.log('responseText:' + xmlhttp.responseText);
+            try {
+                var data = JSON.parse(xmlhttp.responseText);
+            } catch(err) {
+                console.log(err.message + " in " + xmlhttp.responseText);
+                return;
+            }
+            callback(data);
+        }
+    };
+ 
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+
+Object.values(servicesList.services).forEach(val => {
+	console.log(val)
+	newElem = document.createElement("div");
+	newElem.className = "service-box";
+	newElem.innerHTML = `<h2>${val.name}</h2><div id="${val.identifier}" style="display: flex; flex-direction: row;"></div><div><p>Last 30 days</p></div>`;
+
+	document.getElementById('service-container').appendChild(newElem);
+
+	getJson( `https://europe-west2-keen-electron-277310.cloudfunctions.net/get-status-info?uid=${val.identifier}`, function(statusJson) {
+		Object.keys(statusJson.last30days).forEach(key => {
+			secondElem = document.createElement("div");
+			secondElem.className = "statusIndicator " + statusJson.last30days[key].status;
+			document.getElementById( statusJson.identifier.toString() ).appendChild(secondElem);
+			console.log( document.getElementById(statusJson.identifier).innerHTML );
+		})
+	});
+})
+
+let statusJson = JSON.parse( '{"status":"green","name":"demoValidationService","last30days":{"2021-06-22":{"status":"green","message":"All is good"},"2021-06-21":{"status":"green","message":"Minor hickups"}},"timestamp":"2021-06-22T19:15:41.274Z"}')
+let authCodeLoginDiv = document.getElementById('demoValidationService');
+
+function populateStatuses( list ) {
+	const ordered = Object.keys(list).sort().reduce(
+	  (obj, key) => { 
+	    obj[key] = list[key]; 
+	    return obj;
+	  }, 
+	  {}
+	);
+
+	Object.keys(list).forEach(key => {
+		newElem = document.createElement("div");
+		newElem.className = "statusIndicator " + ordered[key].status;
+		newElem.title = key;
+		authCodeLoginDiv.appendChild(newElem);
+	})	
+}
+
+
+
+
+</script>
+
+</body>
+<html>
